@@ -3,7 +3,7 @@
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta http-equiv=x-ua-compatible content="IE=edge">
-<title>[PL] What are exceptions - Mainroad</title>
+<title>[PL] What are exceptions - blog.vallheru.pl</title>
 <script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script>
 <meta name=description content>
 <meta property="og:title" content="[PL] What are exceptions">
@@ -42,12 +42,12 @@ Co to jest tak naprawdę ten wyjątek? Dokumentacja PHP mówi:
 <header class=header>
 <div class="container header__container">
 <div class="logo logo--mixed">
-<a class=logo__link href=/ title=Mainroad rel=home>
+<a class=logo__link href=/ title=blog.vallheru.pl rel=home>
 <div class="logo__item logo__imagebox">
 <img class=logo__img src=/img/placeholder.png>
 </div><div class="logo__item logo__text">
-<div class=logo__title>Mainroad</div>
-<div class=logo__tagline>Just another site</div>
+<div class=logo__title>blog.vallheru.pl</div>
+<div class=logo__tagline>Personal blog</div>
 </div>
 </a>
 </div>
@@ -61,7 +61,7 @@ Co to jest tak naprawdę ten wyjątek? Dokumentacja PHP mówi:
 <header class=post__header>
 <h1 class=post__title>[PL] What are exceptions</h1>
 <div class="post__meta meta"><div class="meta__item-author meta__item">
-<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>John Doe</span>
+<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>daniel1302</span>
 </div>
 <div class="meta__item-datetime meta__item">
 <svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2017-08-15T12:00:00+02:00>2017-08-15</time></div></div>
@@ -231,39 +231,39 @@ $result <span style=color:#f92672>=</span>  $calc<span style=color:#f92672>-&gt;
 Aby funkcja pozwoliła nam zwrócić wartośc null musimy dodać znak zapytania przed zwracanym typem.</p>
 <p>Jednak nie mamy informacji w której lini wystąpił błąd, w przypadku gdybyśmy chcieli zalogować błąd do logów.</p>
 <p>Aby zapewnić taką funkcjonalność możem skorzystać z wyjątków, zatem napiszmy prosty program:</p>
-<pre><code>Class Calculator
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-php data-lang=php><span style=color:#66d9ef>Class</span> <span style=color:#a6e22e>Calculator</span>
 {
-    public function div(float $a, float $b): float
+    <span style=color:#66d9ef>public</span> <span style=color:#66d9ef>function</span> <span style=color:#a6e22e>div</span>(<span style=color:#a6e22e>float</span> $a, <span style=color:#a6e22e>float</span> $b)<span style=color:#f92672>:</span> <span style=color:#a6e22e>float</span>
     {
-        if ($a &gt; PHP_INT_MAX || $b &gt; PHP_INT_MAX) {
-            throw new Exception('Wpisane wartości są zbyt duże', 10);
+        <span style=color:#66d9ef>if</span> ($a <span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>PHP_INT_MAX</span> <span style=color:#f92672>||</span> $b <span style=color:#f92672>&gt;</span> <span style=color:#a6e22e>PHP_INT_MAX</span>) {
+            <span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Exception</span>(<span style=color:#e6db74>&#39;Wpisane wartości są zbyt duże&#39;</span>, <span style=color:#ae81ff>10</span>);
         }
 
-        if ($b === 0.0) {
-            throw new Exception('Dzielenie przez 0 jest zabronione', 11);
+        <span style=color:#66d9ef>if</span> ($b <span style=color:#f92672>===</span> <span style=color:#ae81ff>0.0</span>) {
+            <span style=color:#66d9ef>throw</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Exception</span>(<span style=color:#e6db74>&#39;Dzielenie przez 0 jest zabronione&#39;</span>, <span style=color:#ae81ff>11</span>);
         }
 
-        return $a / $b;
+        <span style=color:#66d9ef>return</span> $a <span style=color:#f92672>/</span> $b;
     }
 }
 
 
 
-$calc = new Calculator();
-try {
-    $result =  $calc-&gt;div(PHP_INT_MAX*PHP_INT_MAX, 2);
-    echo 'Wynik dzielenia '.(PHP_INT_MAX*PHP_INT_MAX).' / 0 to: '.$result; 
-} catch(Exception $ex) {
-    echo 'Podczas działania kalkulatora wystąpił błąd: '.$ex-&gt;getMessage();
-    echo PHP_EOL;
-    echo sprintf(
-        'Błąd wystąpił w pliku: %s, w lini %d, kod błędu: %d',
-        $ex-&gt;getFile(),
-        $ex-&gt;getLine(),
-        $ex-&gt;getCode()
+$calc <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> <span style=color:#a6e22e>Calculator</span>();
+<span style=color:#66d9ef>try</span> {
+    $result <span style=color:#f92672>=</span>  $calc<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>div</span>(<span style=color:#a6e22e>PHP_INT_MAX</span><span style=color:#f92672>*</span><span style=color:#a6e22e>PHP_INT_MAX</span>, <span style=color:#ae81ff>2</span>);
+    <span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#39;Wynik dzielenia &#39;</span><span style=color:#f92672>.</span>(<span style=color:#a6e22e>PHP_INT_MAX</span><span style=color:#f92672>*</span><span style=color:#a6e22e>PHP_INT_MAX</span>)<span style=color:#f92672>.</span><span style=color:#e6db74>&#39; / 0 to: &#39;</span><span style=color:#f92672>.</span>$result; 
+} <span style=color:#66d9ef>catch</span>(<span style=color:#a6e22e>Exception</span> $ex) {
+    <span style=color:#66d9ef>echo</span> <span style=color:#e6db74>&#39;Podczas działania kalkulatora wystąpił błąd: &#39;</span><span style=color:#f92672>.</span>$ex<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>getMessage</span>();
+    <span style=color:#66d9ef>echo</span> <span style=color:#a6e22e>PHP_EOL</span>;
+    <span style=color:#66d9ef>echo</span> <span style=color:#a6e22e>sprintf</span>(
+        <span style=color:#e6db74>&#39;Błąd wystąpił w pliku: %s, w lini %d, kod błędu: %d&#39;</span>,
+        $ex<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>getFile</span>(),
+        $ex<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>getLine</span>(),
+        $ex<span style=color:#f92672>-&gt;</span><span style=color:#a6e22e>getCode</span>()
     );
 }
-</code></pre><p>Oto wynik działania:</p>
+</code></pre></div><p>Oto wynik działania:</p>
 <pre><code>Podczas działania kalkulatora wystąpił błąd: Wpisane wartości są zbyt duże 
 Błąd wystąpił w pliku: calculator, w lini 6, kod błędu: 10
 </code></pre><p>Co zyskujemy korzystając z wyjątków poza tymi dodatkowymi informacjami?
@@ -403,13 +403,13 @@ Wyjątek: Msg1
 </main>
 <div class="authorbox clearfix">
 <figure class=authorbox__avatar>
-<img alt="John Doe avatar" src=/img/avatar.png class=avatar height=90 width=90>
+<img alt="daniel1302 avatar" src=/img/avatar.png class=avatar height=90 width=90>
 </figure>
 <div class=authorbox__header>
-<span class=authorbox__name>About John Doe</span>
+<span class=authorbox__name>About daniel1302</span>
 </div>
 <div class=authorbox__description>
-John Doe&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+Devops with AWS and golang
 </div>
 </div>
 <nav class="pager flex">

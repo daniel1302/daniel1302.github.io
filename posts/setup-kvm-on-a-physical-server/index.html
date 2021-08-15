@@ -3,12 +3,12 @@
 <meta charset=utf-8>
 <meta name=viewport content="width=device-width,initial-scale=1">
 <meta http-equiv=x-ua-compatible content="IE=edge">
-<title>Setup KVM on a physical server - Mainroad</title>
+<title>Setup KVM on a physical server - blog.vallheru.pl</title>
 <script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script>
 <meta name=description content>
 <meta property="og:title" content="Setup KVM on a physical server">
 <meta property="og:description" content="Setup KVM on a physical server As part of my learning, I will try to explain to you how to install KVM on physical computer and server. That is the first stop on the road to install the OpenStack.
-Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 matrix) Two networks: NAT and Bridge to physical interface As much automation as possible  Note:
+Introduction Assumptions  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 matrix) Two networks: NAT and Bridge to physical interface As much automation as possible  Note:
 * Usually, I work with servers I have no real access.">
 <meta property="og:type" content="article">
 <meta property="og:url" content="/posts/setup-kvm-on-a-physical-server/"><meta property="article:section" content="posts">
@@ -16,15 +16,15 @@ Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 m
 <meta property="article:modified_time" content="2019-09-26T12:00:00+02:00">
 <meta itemprop=name content="Setup KVM on a physical server">
 <meta itemprop=description content="Setup KVM on a physical server As part of my learning, I will try to explain to you how to install KVM on physical computer and server. That is the first stop on the road to install the OpenStack.
-Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 matrix) Two networks: NAT and Bridge to physical interface As much automation as possible  Note:
+Introduction Assumptions  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 matrix) Two networks: NAT and Bridge to physical interface As much automation as possible  Note:
 * Usually, I work with servers I have no real access."><meta itemprop=datePublished content="2019-09-26T12:00:00+02:00">
 <meta itemprop=dateModified content="2019-09-26T12:00:00+02:00">
-<meta itemprop=wordCount content="3741">
+<meta itemprop=wordCount content="3742">
 <meta itemprop=keywords content>
 <meta name=twitter:card content="summary">
 <meta name=twitter:title content="Setup KVM on a physical server">
 <meta name=twitter:description content="Setup KVM on a physical server As part of my learning, I will try to explain to you how to install KVM on physical computer and server. That is the first stop on the road to install the OpenStack.
-Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 matrix) Two networks: NAT and Bridge to physical interface As much automation as possible  Note:
+Introduction Assumptions  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 matrix) Two networks: NAT and Bridge to physical interface As much automation as possible  Note:
 * Usually, I work with servers I have no real access.">
 <link rel=preconnect href=https://fonts.gstatic.com crossorigin>
 <link rel=dns-prefetch href=//fonts.googleapis.com>
@@ -39,12 +39,12 @@ Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 m
 <header class=header>
 <div class="container header__container">
 <div class="logo logo--mixed">
-<a class=logo__link href=/ title=Mainroad rel=home>
+<a class=logo__link href=/ title=blog.vallheru.pl rel=home>
 <div class="logo__item logo__imagebox">
 <img class=logo__img src=/img/placeholder.png>
 </div><div class="logo__item logo__text">
-<div class=logo__title>Mainroad</div>
-<div class=logo__tagline>Just another site</div>
+<div class=logo__title>blog.vallheru.pl</div>
+<div class=logo__tagline>Personal blog</div>
 </div>
 </a>
 </div>
@@ -58,7 +58,7 @@ Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 m
 <header class=post__header>
 <h1 class=post__title>Setup KVM on a physical server</h1>
 <div class="post__meta meta"><div class="meta__item-author meta__item">
-<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>John Doe</span>
+<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>daniel1302</span>
 </div>
 <div class="meta__item-datetime meta__item">
 <svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2019-09-26T12:00:00+02:00>2019-09-26</time></div></div>
@@ -68,43 +68,24 @@ Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 m
 <div class=toc__menu>
 <nav id=TableOfContents>
 <ul>
-<li>
+<li><a href=#introduction>Introduction</a>
 <ul>
-<li><a href=#assumptions>Assumptions:</a></li>
-<li><a href=#triggered-topics>Triggered topics:</a></li>
-<li><a href=#machine-i-run-cluster-on>Machine I run cluster on:</a></li>
+<li><a href=#assumptions>Assumptions</a></li>
+<li><a href=#triggered-topics>Triggered topics</a></li>
+<li><a href=#machine-i-run-cluster-on>Machine I run cluster on</a></li>
 <li><a href=#naming-conventions>Naming conventions</a></li>
 </ul>
 </li>
-</ul>
-<ul>
-<li>
+<li><a href=#kvm-instalation>KVM instalation</a></li>
+<li><a href=#kvm-configuration>KVM configuration</a>
 <ul>
 <li><a href=#infrastructure-you-need-to-modify>Infrastructure, you need to modify.</a></li>
-</ul>
-</li>
 <li><a href=#qemu-config>Qemu config</a></li>
-<li><a href=#host-bridge-network>Host bridge network</a>
-<ul>
-<li></li>
-</ul>
-</li>
-<li><a href=#create-storage>Create storage</a>
-<ul>
-<li></li>
-</ul>
-</li>
-<li><a href=#deploy-first-vm>Deploy first VM</a>
-<ul>
-<li></li>
-</ul>
-</li>
+<li><a href=#host-bridge-network>Host bridge network</a></li>
+<li><a href=#create-storage>Create storage</a></li>
+<li><a href=#deploy-first-vm>Deploy first VM</a></li>
 <li><a href=#attach-network>Attach network</a></li>
-<li><a href=#expand-hdd>Expand HDD</a>
-<ul>
-<li></li>
-<li><a href=#scenario-1-attach-new-disk-and-map-to-specific-location-varlibmysql>Scenario 1: Attach new disk and map to specific location (/var/lib/mysql)</a></li>
-<li><a href=#scenario-2-expand-the-attached-volume>Scenario 2: Expand the attached volume</a></li>
+<li><a href=#expand-hdd>Expand HDD</a></li>
 </ul>
 </li>
 </ul>
@@ -113,7 +94,8 @@ Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 m
 </div><div class="content post__content clearfix">
 <h1 id=setup-kvm-on-a-physical-server>Setup KVM on a physical server</h1>
 <p>As part of my learning, I will try to explain to you how to install KVM on physical computer and server. That is the first stop on the road to install the OpenStack.</p>
-<h3 id=assumptions>Assumptions:</h3>
+<h2 id=introduction>Introduction</h2>
+<h3 id=assumptions>Assumptions</h3>
 <ul>
 <li>Do not use GUI*</li>
 <li>KVM cluster</li>
@@ -123,13 +105,13 @@ Assumptions:  Do not use GUI* KVM cluster All VM stored on /mapper/red01(Raid5 m
 </ul>
 <p><strong>Note:</strong></p>
 <p>* Usually, I work with servers I have no real access. Also, my connection to the internet is slow, so it is not possible to transfer the graphic interface.</p>
-<h3 id=triggered-topics>Triggered topics:</h3>
+<h3 id=triggered-topics>Triggered topics</h3>
 <ul>
 <li>Ansible</li>
 <li>Linux networking</li>
 <li>libvirt</li>
 </ul>
-<h3 id=machine-i-run-cluster-on>Machine I run cluster on:</h3>
+<h3 id=machine-i-run-cluster-on>Machine I run cluster on</h3>
 <ul>
 <li>CPU: 2x Intel(R) Xeon(R) CPU E5645 @ 2.40GHz</li>
 <li>RAM: 128 GB</li>
@@ -155,7 +137,7 @@ Host name contains following parts:</p>
 <li>Domain: <code>kvm-smaug</code>, <code>kvm-farnir</code></li>
 <li>Host names: <code>smaug-mysql</code>,</li>
 </ul>
-<h1 id=kvm-instalation>KVM instalation</h1>
+<h2 id=kvm-instalation>KVM instalation</h2>
 <ol>
 <li>
 <p>Before you start installing the KVM soft, check if your processor has support for virtualization. To check your virtualization capabilities, you need to run the following command: <code>egrep -c '(svm|vmx)' /proc/cpuinfo</code></p>
@@ -193,7 +175,7 @@ Id Name                 State
 <p>It&rsquo;s done!</p>
 </li>
 </ol>
-<h1 id=kvm-configuration>KVM configuration</h1>
+<h2 id=kvm-configuration>KVM configuration</h2>
 <h3 id=infrastructure-you-need-to-modify>Infrastructure, you need to modify.</h3>
 <pre><code>    /etc/libvirt/
     └── qemu.conf
@@ -210,7 +192,7 @@ Id Name                 State
     └── networks
         └── host-bridge.xml
 </code></pre>
-<h2 id=qemu-config>Qemu config</h2>
+<h3 id=qemu-config>Qemu config</h3>
 <p>Open the file: /etc/libvirt/qemu.conf and change the following values:</p>
 <pre><code>user = &quot;root&quot;
 group = &quot;root&quot;
@@ -220,7 +202,7 @@ security_driver = &quot;none&quot;
 <p>Then restart the <code>libvirtd</code> service</p>
 <pre><code># service libvirt restart
 </code></pre>
-<h2 id=host-bridge-network>Host bridge network</h2>
+<h3 id=host-bridge-network>Host bridge network</h3>
 <p>I use <code>Ubuntu Server 18.04.3 LTS</code>, and I am going to prepare creating bridge network for this system.</p>
 <h4 id=enable-forwarding>Enable forwarding.</h4>
 <p>Open the /etc/sysctl.conf file and uncomment/add following line:</p>
@@ -331,7 +313,7 @@ Physical interface, should be up without any IP</li>
     inet 192.168.122.1/24 brd 192.168.122.255 scope global virbr0
        valid_lft forever preferred_lft forever
 </code></pre>
-<h2 id=create-storage>Create storage</h2>
+<h3 id=create-storage>Create storage</h3>
 <h4 id=what-are-kvm-pools>What are KVM pools?</h4>
 <p>Today, everybody uses different disks, settings, partitions, file systems, etc.</p>
 <p>All storages have pros and cons. Ones provide better control others are faster. For example, an application which is doing some computations and save data on HDD requires a faster drive than DB, which keeps user DB.</p>
@@ -384,7 +366,7 @@ virsh pool-autostart kvm-pool
   &lt;/target&gt;
 &lt;/pool&gt;
 </code></pre><p>Now we can verify if everything is correct. If not, you can run the <code>virsh pool-edit kvm-disks</code> command.</p>
-<h2 id=deploy-first-vm>Deploy first VM</h2>
+<h3 id=deploy-first-vm>Deploy first VM</h3>
 <p>On the beginning, I will provide the bash command and explain a bit what it does. To create a new VM, I am going to use the virt-install bash command, which comes from virt tools.</p>
 <pre><code>virt-install \
   --virt-type=kvm \
@@ -578,7 +560,7 @@ Aug 13 14:49:52 debian10-base systemd[1]: Started OpenBSD Secure Shell server.
 </tr>
 </tbody>
 </table>
-<h2 id=attach-network>Attach network</h2>
+<h3 id=attach-network>Attach network</h3>
 <p>On the beginning, let&rsquo;s list all our networks on the KVM node. Execute the following command: <code>virsh net-list</code>.</p>
 <pre><code>virsh net-list
 
@@ -752,13 +734,13 @@ inet6 fe80::5054:ff:fe4b:735f/64 scope link
 
 </code></pre></li>
 </ol>
-<h2 id=expand-hdd>Expand HDD</h2>
+<h3 id=expand-hdd>Expand HDD</h3>
 <h4 id=quick-about-the-volume-format>Quick about the volume format:</h4>
 <p>Different people prefer to use a different type of volumes.</p>
 <p><em>Raw</em> format is the most universal and portable. You can export raw disks into another Virtualization format. Another advantage of that format is high performance.</p>
 <p>The <em>qcow</em> format provides several like features: snapshots, compressions, backups, etc.</p>
 <p>At the moment, it&rsquo;s not important what kind of format you choose.</p>
-<h3 id=scenario-1-attach-new-disk-and-map-to-specific-location-varlibmysql>Scenario 1: Attach new disk and map to specific location (/var/lib/mysql)</h3>
+<h4 id=scenario-1-attach-new-disk-and-map-to-specific-location-varlibmysql>Scenario 1: Attach new disk and map to specific location (/var/lib/mysql)</h4>
 <p>Like You remember We use the &ldquo;kvm-pool&rdquo; pool as a volumes storage.</p>
 <ol>
 <li>
@@ -898,7 +880,7 @@ root@debian10-base:~# tail -n 1 /etc/fstab
 /dev/vdb1    /var/lib/mysql    ext4    defaults    0  0
 </code></pre></li>
 </ol>
-<h3 id=scenario-2-expand-the-attached-volume>Scenario 2: Expand the attached volume</h3>
+<h4 id=scenario-2-expand-the-attached-volume>Scenario 2: Expand the attached volume</h4>
 <ol>
 <li>
 <p>Before We start let&rsquo;s check current file system size for particular guest</p>
@@ -1029,13 +1011,13 @@ tmpfs           779M     0  779M   0% /run/user/0
 </main>
 <div class="authorbox clearfix">
 <figure class=authorbox__avatar>
-<img alt="John Doe avatar" src=/img/avatar.png class=avatar height=90 width=90>
+<img alt="daniel1302 avatar" src=/img/avatar.png class=avatar height=90 width=90>
 </figure>
 <div class=authorbox__header>
-<span class=authorbox__name>About John Doe</span>
+<span class=authorbox__name>About daniel1302</span>
 </div>
 <div class=authorbox__description>
-John Doe&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+Devops with AWS and golang
 </div>
 </div>
 <nav class="pager flex">
