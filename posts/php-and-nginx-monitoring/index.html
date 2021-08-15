@@ -1,0 +1,358 @@
+<!doctype html><html class=no-js lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<title>[PL] Monitoring PHP + NGINX - Mainroad</title>
+<script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script>
+<meta name=description content>
+<meta property="og:title" content="[PL] Monitoring PHP + NGINX">
+<meta property="og:description" content="Wstęp Jeśli jeszcze nie wiesz co to jest php-fpm, jak działa to zapraszam do zapoznania się z innymi ciekawymi artykułami na ten temat, do których link znajdziesz na koncu
+Tematem tego artykułu jest poprawa wydajności i eleminacja problemów z którymi naktnąłem się podczas wdrażania rozwiązania opartego o PHP-FPM i Nginx. Jeśli przeanalizujesz swój serwer zgodnie z tym jak zrobiłem to ja to będziesz miał gwarancję, że lepiej zrozumiesz jak działają rozwiązania które używasz i będziesz miał nad nimi lepszą kontrolę.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="/posts/php-and-nginx-monitoring/"><meta property="article:section" content="posts">
+<meta itemprop=name content="[PL] Monitoring PHP + NGINX">
+<meta itemprop=description content="Wstęp Jeśli jeszcze nie wiesz co to jest php-fpm, jak działa to zapraszam do zapoznania się z innymi ciekawymi artykułami na ten temat, do których link znajdziesz na koncu
+Tematem tego artykułu jest poprawa wydajności i eleminacja problemów z którymi naktnąłem się podczas wdrażania rozwiązania opartego o PHP-FPM i Nginx. Jeśli przeanalizujesz swój serwer zgodnie z tym jak zrobiłem to ja to będziesz miał gwarancję, że lepiej zrozumiesz jak działają rozwiązania które używasz i będziesz miał nad nimi lepszą kontrolę.">
+<meta itemprop=wordCount content="1554">
+<meta itemprop=keywords content>
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="[PL] Monitoring PHP + NGINX">
+<meta name=twitter:description content="Wstęp Jeśli jeszcze nie wiesz co to jest php-fpm, jak działa to zapraszam do zapoznania się z innymi ciekawymi artykułami na ten temat, do których link znajdziesz na koncu
+Tematem tego artykułu jest poprawa wydajności i eleminacja problemów z którymi naktnąłem się podczas wdrażania rozwiązania opartego o PHP-FPM i Nginx. Jeśli przeanalizujesz swój serwer zgodnie z tym jak zrobiłem to ja to będziesz miał gwarancję, że lepiej zrozumiesz jak działają rozwiązania które używasz i będziesz miał nad nimi lepszą kontrolę.">
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<link rel=dns-prefetch href=//fonts.googleapis.com>
+<link rel=dns-prefetch href=//fonts.gstatic.com>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+<link rel=stylesheet href=/css/style.css>
+<link rel=stylesheet href=/css/custom.css>
+<link rel="shortcut icon" href=/favicon.ico>
+</head>
+<body class=body>
+<div class="container container--outer">
+<header class=header>
+<div class="container header__container">
+<div class="logo logo--mixed">
+<a class=logo__link href=/ title=Mainroad rel=home>
+<div class="logo__item logo__imagebox">
+<img class=logo__img src=/img/placeholder.png>
+</div><div class="logo__item logo__text">
+<div class=logo__title>Mainroad</div>
+<div class=logo__tagline>Just another site</div>
+</div>
+</a>
+</div>
+<div class=divider></div>
+</div>
+</header>
+<div class="wrapper flex">
+<div class=primary>
+<main class=main role=main>
+<article class=post>
+<header class=post__header>
+<h1 class=post__title>[PL] Monitoring PHP + NGINX</h1>
+<div class="post__meta meta"><div class="meta__item-author meta__item">
+<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>John Doe</span>
+</div></div>
+</header>
+<div class="post__toc toc">
+<div class=toc__title>Page content</div>
+<div class=toc__menu>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#skutki>Skutki?</a></li>
+<li><a href=#przyczyna>Przyczyna</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<ul>
+<li><a href=#monitoring>Monitoring</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<ul>
+<li><a href=#logi>Logi</a></li>
+<li><a href=#metryki>Metryki</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<ul>
+<li><a href=#logi-1>Logi</a></li>
+<li><a href=#metryki-1>Metryki</a></li>
+</ul>
+</li>
+<li><a href=#linki>Linki</a></li>
+</ul>
+</nav>
+</div>
+</div><div class="content post__content clearfix">
+<h1 id=wstęp>Wstęp</h1>
+<p>Jeśli jeszcze nie wiesz co to jest php-fpm, jak działa to zapraszam do zapoznania się z
+innymi ciekawymi artykułami na ten temat, do których link znajdziesz na koncu</p>
+<p>Tematem tego artykułu jest poprawa wydajności i eleminacja problemów z którymi naktnąłem się podczas
+wdrażania rozwiązania opartego o PHP-FPM i Nginx. Jeśli przeanalizujesz swój serwer zgodnie z tym jak
+zrobiłem to ja to będziesz miał gwarancję, że lepiej zrozumiesz jak działają rozwiązania które używasz
+i będziesz miał nad nimi lepszą kontrolę.</p>
+<h1 id=random-stuff>Random stuff</h1>
+<p>Gdy zaczynamy przygodę z nową technologią nie znamy jej dobrze i nigdy nie ma tak kolorowo, że wszystko
+będzie działało tak idealnie jakbyśmy tego chcieli. Gdy pojawiają się pierwsze problemy często nie wiemy
+jak sobie z nimi radzić i robimy <strong>losowe rzeczy</strong>, po czym sprawdzamy jaki to przyniosło rezultat.</p>
+<h3 id=skutki>Skutki?</h3>
+<p>Często takie podejście może wprowadzić więcej haosu i bałaganu. Mi osobiście w swojej pracy często zdarza
+się stosować takie podejście, że wykonuje <strong>random stuff</strong> i czekam na cud, często zdarzyło mi się
+wygenerować w ten sposób dodatkowe problemy, przez co traciłem mase czasu, bo te dodatkowe problemy wymagały
+później więcej czasu na określenie przyczyny i naprawę nowo powstałych problemów.</p>
+<h3 id=przyczyna>Przyczyna</h3>
+<p>Jedną jedyną przyczyną tego jest to, że używamy to czego nie znamy - samo w sobie nie jest to złe podejście
+ale wraz z rozwojem projektu/produktu należy zagłębiać się w określoną technologię aby ją zrozumieć.</p>
+<h1 id=zaczynamy>Zaczynamy</h1>
+<h3 id=monitoring>Monitoring</h3>
+<p>Aby wiedzieć co w naszym systemie jest nie tak, musimy go monitorować. Monitoring jest jedną z najważniejszych
+rzeczy w naszym systemi bo to on mówi nam czy system działa czy nie i jakiej jest kondycji.</p>
+<p>Sam proces monitoringu wymaga dodatkowego doświadczenia, które pozwoli określić kiedy i jak należy
+reagować.</p>
+<h1 id=konfiguracja-nginxa>Konfiguracja Nginxa.</h1>
+<h3 id=logi>Logi</h3>
+<h5 id=konfiguracja-logów>Konfiguracja logów.</h5>
+<p>Dzisiaj standardem jest generowanie logów w formacie <strong>JSON</strong> pozwala to na łatwe ich filtrowanie i
+ewentualnie grupowanie, generowanie metryk na ich podstawie.</p>
+<p>Najpierw definiujemy sobie format logów jaki będziemy używać. Aby to zrobić tworzymy plik
+<code>/etc/nginx/conf.d/log_format.conf</code> o treści:</p>
+<pre><code class=language-conf data-lang=conf>log_format get escape=json '{'
+        '&quot;time_ms&quot;:&quot;$msec&quot;,'
+        '&quot;time_iso8601&quot;:&quot;$time_iso8601&quot;,'
+        '&quot;ip&quot;:&quot;$http_x_forwarded_for&quot;,'
+        '&quot;http_x_forwarded_proto&quot;:&quot;$http_x_forwarded_proto&quot;,'
+        '&quot;status&quot;:&quot;$status&quot;,'
+        '&quot;method&quot;:&quot;$request_method&quot;,'
+        '&quot;scheme&quot;:&quot;$scheme&quot;,'
+        '&quot;host&quot;:&quot;$host&quot;,'
+        '&quot;path&quot;:&quot;$request_uri&quot;,'
+        '&quot;query&quot;:&quot;$query_string&quot;,'
+        '&quot;referrer_uri&quot;:&quot;$http_referer&quot;,'
+        '&quot;user_agent&quot;:&quot;$http_user_agent&quot;,'
+        '&quot;remote_user&quot;:&quot;$remote_user&quot;,'
+        '&quot;remote_port&quot;:&quot;$remote_port&quot;,'
+        '&quot;server_name&quot;:&quot;$server_name&quot;,'
+        '&quot;server_port&quot;:&quot;$server_port&quot;,'
+        '&quot;server_protocol&quot;:&quot;$server_protocol&quot;,'
+        '&quot;nginx_version&quot;:&quot;$nginx_version&quot;,'
+        '&quot;nginx_pid&quot;:&quot;$pid&quot;,'
+        '&quot;nginx_time&quot;:&quot;$request_time&quot;,'
+        '&quot;upstream_response_time&quot;:&quot;$upstream_response_time&quot;,'
+        '&quot;upstream_connect_time&quot;:&quot;$upstream_connect_time&quot;,'
+        '&quot;upstream_header_time&quot;:&quot;$upstream_header_time&quot;,'
+        '&quot;connections_active&quot;:&quot;$connections_active&quot;,'
+        '&quot;connection_reading&quot;:&quot;$connections_reading&quot;,'
+        '&quot;connection_writings&quot;:&quot;$connections_writing&quot;,'
+        '&quot;connections_waiting&quot;:&quot;$connections_waiting&quot;'
+'}';
+</code></pre><p>Wpis ten zawiera wszystkie informacje, które przydały się w mojej pracy z Nginxem. Po więcej informacji
+zapraszam do <a href=http://nginx.org/en/docs/http/ngx_http_log_module.html#log_format>documentacji Nginxa</a></p>
+<p>Czas aby aktywować nowy format logów dla naszej aplikacji. W tym celu otwieramy ustawienia nginxa dla naszej
+strony - prawdopodobnie będzie to jeden z plików znajdujących się w katalogu: <code>/etc/nginx/sites-enabled/</code>
+lub w katalogu <code>/etc/nginx/conf.d</code>. Następnie włączamy logowanie w wcześniej zdefiniowanym formacie.
+Dodajemy w bloku server takie linie:</p>
+<pre><code class=language-conf data-lang=conf>error_log  /var/log/nginx/application.error.log warn;
+access_log /var/log/nginx/application.access.log get;
+</code></pre><p>Więcej informacji o powyższych dyrektywach w <a href=http://nginx.org/en/docs/http/ngx_http_log_module.html#access_log>dokumentacji</a></p>
+<p>Sprawdzamy, czy nasza konfiguracja jest poprawna wpisując polecenie:</p>
+<pre><code>nginx -t
+</code></pre><p>Jeśli wszystko jest poprawnie skonfigurowane powinniśmy zobaczyć poniższy komunikat.</p>
+<pre><code>nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+</code></pre><p>Teraz czas na załadowanie naszej nowej konfiguracji. W tym celu wykonujemy komendę:</p>
+<pre><code>nginx -s reload
+</code></pre><p>I po chwili logi powinny zacząć pojawiać się w naszym formacie. Przykład logów z mojej aplikacji:</p>
+<pre><code>[daniel@archlinux tools]$ tail -n4 /var/log/nginx/application.access.log
+
+
+{&quot;time_ms&quot;:&quot;1535473131.906&quot;,&quot;time_iso8601&quot;:&quot;2018-08-28T19:18:51+03:00&quot;,&quot;ip&quot;:&quot;-&quot;,&quot;http_x_forwarded_proto&quot;:&quot;-&quot;,&quot;status&quot;:&quot;200&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;scheme&quot;:&quot;http&quot;,&quot;host&quot;:&quot;local.application.com&quot;,&quot;path&quot;:&quot;/themes/classic/images/fugue/stamp.png&quot;,&quot;query&quot;:&quot;-&quot;,&quot;referrer_uri&quot;:&quot;http://local.application.com:8282/overview.html&quot;,&quot;user_agent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36&quot;,&quot;remote_user&quot;:&quot;-&quot;,&quot;remote_port&quot;:&quot;59720&quot;,&quot;server_name&quot;:&quot;localhost&quot;,&quot;server_port&quot;:&quot;80&quot;,&quot;server_protocol&quot;:&quot;HTTP/1.1&quot;,&quot;nginx_version&quot;:&quot;1.15.2&quot;,&quot;nginx_pid&quot;:&quot;14&quot;,&quot;nginx_time&quot;:&quot;0.000&quot;,&quot;upstream_response_time&quot;:&quot;-&quot;,&quot;upstream_connect_time&quot;:&quot;-&quot;,&quot;upstream_header_time&quot;:&quot;-&quot;}
+{&quot;time_ms&quot;:&quot;1535473131.906&quot;,&quot;time_iso8601&quot;:&quot;2018-08-28T19:18:51+03:00&quot;,&quot;ip&quot;:&quot;-&quot;,&quot;http_x_forwarded_proto&quot;:&quot;-&quot;,&quot;status&quot;:&quot;200&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;scheme&quot;:&quot;http&quot;,&quot;host&quot;:&quot;local.application.com&quot;,&quot;path&quot;:&quot;/themes/classic/images/scissors.png&quot;,&quot;query&quot;:&quot;-&quot;,&quot;referrer_uri&quot;:&quot;http://local.application.com:8282/overview.html&quot;,&quot;user_agent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36&quot;,&quot;remote_user&quot;:&quot;-&quot;,&quot;remote_port&quot;:&quot;59724&quot;,&quot;server_name&quot;:&quot;localhost&quot;,&quot;server_port&quot;:&quot;80&quot;,&quot;server_protocol&quot;:&quot;HTTP/1.1&quot;,&quot;nginx_version&quot;:&quot;1.15.2&quot;,&quot;nginx_pid&quot;:&quot;14&quot;,&quot;nginx_time&quot;:&quot;0.000&quot;,&quot;upstream_response_time&quot;:&quot;-&quot;,&quot;upstream_connect_time&quot;:&quot;-&quot;,&quot;upstream_header_time&quot;:&quot;-&quot;}
+{&quot;time_ms&quot;:&quot;1535473133.710&quot;,&quot;time_iso8601&quot;:&quot;2018-08-28T19:18:53+03:00&quot;,&quot;ip&quot;:&quot;-&quot;,&quot;http_x_forwarded_proto&quot;:&quot;-&quot;,&quot;status&quot;:&quot;302&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;scheme&quot;:&quot;http&quot;,&quot;host&quot;:&quot;local.application.com&quot;,&quot;path&quot;:&quot;/logout.html&quot;,&quot;query&quot;:&quot;&quot;,&quot;referrer_uri&quot;:&quot;http://local.application.com:8282/overview.html&quot;,&quot;user_agent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36&quot;,&quot;remote_user&quot;:&quot;-&quot;,&quot;remote_port&quot;:&quot;59724&quot;,&quot;server_name&quot;:&quot;localhost&quot;,&quot;server_port&quot;:&quot;80&quot;,&quot;server_protocol&quot;:&quot;HTTP/1.1&quot;,&quot;nginx_version&quot;:&quot;1.15.2&quot;,&quot;nginx_pid&quot;:&quot;14&quot;,&quot;nginx_time&quot;:&quot;0.109&quot;,&quot;upstream_response_time&quot;:&quot;0.000, 0.110&quot;,&quot;upstream_connect_time&quot;:&quot;0.000, 0.000&quot;,&quot;upstream_header_time&quot;:&quot;0.000, 0.110&quot;}
+{&quot;time_ms&quot;:&quot;1535473133.860&quot;,&quot;time_iso8601&quot;:&quot;2018-08-28T19:18:53+03:00&quot;,&quot;ip&quot;:&quot;-&quot;,&quot;http_x_forwarded_proto&quot;:&quot;-&quot;,&quot;status&quot;:&quot;200&quot;,&quot;method&quot;:&quot;GET&quot;,&quot;scheme&quot;:&quot;http&quot;,&quot;host&quot;:&quot;local.application.com&quot;,&quot;path&quot;:&quot;/&quot;,&quot;query&quot;:&quot;-&quot;,&quot;referrer_uri&quot;:&quot;http://local.application.com:8282/overview.html&quot;,&quot;user_agent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36&quot;,&quot;remote_user&quot;:&quot;-&quot;,&quot;remote_port&quot;:&quot;59720&quot;,&quot;server_name&quot;:&quot;localhost&quot;,&quot;server_port&quot;:&quot;80&quot;,&quot;server_protocol&quot;:&quot;HTTP/1.1&quot;,&quot;nginx_version&quot;:&quot;1.15.2&quot;,&quot;nginx_pid&quot;:&quot;14&quot;,&quot;nginx_time&quot;:&quot;0.146&quot;,&quot;upstream_response_time&quot;:&quot;0.146&quot;,&quot;upstream_connect_time&quot;:&quot;0.000&quot;,&quot;upstream_header_time&quot;:&quot;0.146&quot;}
+</code></pre><h5 id=jak-czytać-logi>Jak czytać logi.</h5>
+<p>Pierwszą rzeczą jest przeglądnięcie pliku /var/log/nginx/application.error.log. W nim będą wszystkie niepokojące informacje.
+Ale ja robię to nieco inaczej. Takie szukanie informacji w error logu jest żmudne i często
+to overwork&mldr;
+Według mnie najlepszym sposobem jest szukanie w access logu jakichś niepoprawnych requestów.
+W tym celu możemy użyć poniższej komendy:</p>
+<pre><code>cat /var/log/nginx/application.access.log | grep &quot;time_ms&quot; |  jq '. | select(.status &gt;= &quot;400&quot;)'
+</code></pre><p>Wyświetli nam to wszystki requesty, które mają status większy bądź równy 400.
+Jeśli znajdziemy już podejrzane wpisy -ajważniejsze są dla nas te o statusie 404, 500, 503, 502.
+To możemy szukać korelacji z innymi elementami systemu. Np wtedy otwieramy log z błędami
+i szukamy wiadomości o błędach w tym samym (+/- 2 sekundy) czasie w którym został dodany
+wpis w access logu.</p>
+<h3 id=metryki>Metryki</h3>
+<p>Skoro mamy skonfigurowane logi chcielibyśmy widzieć co się dzieje z naszym serwerem na jakims wykresie.
+Najpierw spradzamy czy nasz Nginx jest skompilowany z modułem <code>stub_status</code>. W tym celu wykonujemy komendę</p>
+<pre><code>nginx -V 2&gt;&amp;1 | grep --color -- --with-http_stub_status_module
+</code></pre><p>Jeśli widzimy pokolorowany tekst to znaczy, że mamy ten moduł.</p>
+<p>Teraz tworzymy nowy plik o nazwie <code>nginx-status.conf</code> w <code>/etc/nginx/sites-enabled/</code> lub w <code>/etc/nginx/conf.d</code>
+Zawartość pliku:</p>
+<pre><code>server {
+    listen 127.0.0.1:80;
+    server_name 127.0.0.1;
+
+    location /nginx_status {
+        stub_status;
+    }
+}
+</code></pre><p>Przeładowujemy konfigurację:</p>
+<pre><code>[daniel@archlinux ~]$ sudo nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+[daniel@archlinux ~]$ sudo nginx -s reload
+2018/09/01 17:11:13 [notice] 17836#17836: signal process started
+</code></pre><p>Od teraz mamy dostęp do endpointu http://127.0.0.1/nginx_status, który zwraca nam informację:</p>
+<pre><code>curl http://127.0.0.1/nginx_status
+Active connections: 2 
+server accepts handled requests
+ 21211 21211 5321111 
+Reading: 0 Writing: 1 Waiting: 1
+</code></pre><h5 id=co-te-metryki-oznaczają>Co te metryki oznaczają?</h5>
+<p>The following status information is provided:</p>
+<ul>
+<li>Active connections - Liczba aktywnych połączeń z Nginx&rsquo;em wliczając w to połączenia oczekujące.</li>
+<li>accepts- Całkowita liczba zaakceptowanych requestów.</li>
+<li>handled - Całkowita liczba obsłużonych requestów. Liczba ta <strong>powinna</strong> być taka sama jak liczba zaakceptowanych połącze</li>
+<li>Reading - Liczba połączeń, w których Nginx aktualnie czyta nagłówki nadesłanych rządań.</li>
+<li>Writing - Liczba połączeń, w których Nginx wysyła odpowiedź spowrotem do klienta.</li>
+<li>Waiting - Liczba wolnych workerów, które są w stanie obsłużyć przychodzące rządania.</li>
+</ul>
+<p>Więcej w <a href=http://nginx.org/libxslt/en/docs/http/ngx_http_stub_status_module.html>oficjalnej dokumentacji</a></p>
+<ul>
+<li><code>Active connections</code>, <code>reading</code>, <code>writing</code> i <code>waiting</code> - te wartości są widoczne w logach.</li>
+</ul>
+<h5 id=jak-to-rozumieć>Jak to rozumieć?</h5>
+<ol>
+<li>Najważniejsze jest niedopuszczenie aby wartość <strong>Waiting</strong> aby osiągnęła wartość 0.</li>
+<li>Drugim podejrzanym sygnałem, że coś jest nie tak jest to, że <strong>accepts</strong> jest większe od <strong>handled</strong>.
+Oznacza to, że brakuje nam wolnych workerów i i niektóre żądania zostały odrzucone.</li>
+</ol>
+<h1 id=konfiguracja-php-i-php-fpm>Konfiguracja PHP i PHP-FPM.</h1>
+<h3 id=logi-1>Logi</h3>
+<h5 id=error-log>Error log</h5>
+<p>Logi te zawierają komunikaty błędów.</p>
+<p>Aby skonfigurować logowanie błędów otwieramy plik: <code>/etc/php/php-fpm.conf</code> i ustawiamy wartość
+dyrektywy error_log na <code>/var/log/php-fpm/www.pool.error.log</code></p>
+<pre><code>error_log = /var/log/php-fpm/www.pool.error.log
+</code></pre><h5 id=access-log>Access log</h5>
+<p>Logi te zawierają wszystkie requesty jakie php-fpm odebrał z wszystkich źródeł.</p>
+<p>Przygotowanie naszej konfiguracji php-fpm zaczniemy od edycji puli php-fpm. W tym celu
+otwieramy plik <code>/etc/php/php-fpm.d/www.conf</code> i szukamy lini w której ustawione jest dyrektywa
+<code>access.format</code>. U mnie domyślnie jest zakomentowana i wygląda mniej więcej tak:</p>
+<pre><code>;access.format = &quot;%R - %u %t \&quot;%m %r%Q%q\&quot; %s %f %{mili}d %{kilo}M %C%%&quot;
+</code></pre><p>Jak wszędzie zaczynamy używać formatu JSON. linia ta powinna wyglądać tak:</p>
+<pre><code>access.format =  '{&quot;pool_name&quot;: &quot;%n&quot;, &quot;cpu&quot;: &quot;%C&quot;, &quot;time_to_serve_request&quot;: &quot;%d&quot;, &quot;REQUEST_METHOD&quot;: &quot;%{REQUEST_METHOD}e&quot;, &quot;HTTP_HOST&quot;: &quot;%{HTTP_HOST}e&quot;, &quot;memory_alocated&quot;: &quot;%{kilo}M kb&quot;,&quot;script_file_name&quot;: &quot;%f&quot;, &quot;query_string&quot;: &quot;%q&quot;, &quot;request_uri&quot;: &quot;%r&quot;, &quot;remote_ip&quot;: &quot;%R&quot;, &quot;response_code&quot;: &quot;%s&quot;, &quot;date&quot;: &quot;%t&quot;, &quot;remote_user&quot;: &quot;%u&quot;}'
+</code></pre><p>Niestety mi nie udało się tej lini rozdzielić w kilka, i nie wygląda to najładniej, ale działa.</p>
+<p>Następnie musimy zadbać aby aby te wiadomości były logowane, więc ustawiamy dyrektywę <code>access.log</code>:</p>
+<pre><code>access.log = /var/log/php-fpm/www.pool.access.log
+</code></pre><p>W tym samym pliku ustawiamy dodatkową dyrektywę, która spowoduje, że wszystkie błędy
+jakie wystąpią w parserze PHP oraz wszelkie komunikaty od workerów zostaną przekierowane
+do naszego logu, a dokładniej do pliku z dyrektywy <code>error_log</code> w dyrektywie <code>[global]</code></p>
+<pre><code>catch_workers_output = yes
+</code></pre><h5 id=slow-log>Slow log</h5>
+<p>Slow log jest specyficznym logiem, ponieważ zawiera informacje tylko o requestach, które
+wykonywały się zbyt długo. Jest to niezwykle przydatny log i powinniśmy dążyć aby był pusty.</p>
+<p>Przystąpmy do konfiguracji logowania slow requestów.
+Otwieramy nasz plik z ustawieniami puli <code>/etc/php/php-fpm.d/www.conf</code>, i ustawiamy dwie dyrektywy:</p>
+<pre><code>slowlog = /var/log/php-fpm/www.pool.slow.log
+request_slowlog_timeout = 2s
+</code></pre><p>Pierwsza dyrektywa(<code>slowlog</code>) mówi nam, gdzie będą logowane zmiany, druga(<code>request_slowlog_timeout</code>),
+mówi jaki jest minimalny czas wykonania requestu, który zostanie zalogowany.</p>
+<h5 id=ustawienia-parsera-php>Ustawienia parsera PHP</h5>
+<p>Otwieramy plik <code>/etc/php/php-fpm.d/www.conf</code> i na końcu dodajemy następujące linie:</p>
+<pre><code>php_flag[display_errors] = off
+php_admin_value[error_log] = /var/log/php.error.log
+php_admin_flag[log_errors] = on
+</code></pre><p>Linie te nadpisują dyrektywy z pliku php.ini, więc tamte wartości zostaną zignotorowane.
+Jeśli nie chcesz tego robić, to poprostu zignoruj tą sekcję, ale pamiętaj aby włączyć logowanie
+do pliku w <code>/etc/php/php.ini</code>.</p>
+<h5 id=więcej>Więcej?</h5>
+<p>Po więcej informacji informacji zapraszam do <a href=http://php.net/manual/en/install.fpm.configuration.php>oficjalnej dokumentacji</a>.</p>
+<h3 id=metryki-1>Metryki</h3>
+<h5 id=informacje>Informacje</h5>
+<p>PHP-FPM udostępnia nam też metryki. Najpierw opiszmy co to są za metryki i co pozwalają nam
+monitorować:</p>
+<ul>
+<li>pool - Nazwa puli</li>
+<li>process manager - typ użytego w puli managera procesów [static, dynamic, ondemand]</li>
+<li>start time - data i czas ostatniego załadowania konfiguracji przez php-fpm</li>
+<li>start since - liczba sekund jaką działą php-fpm</li>
+<li>accepted conn - liczba zaakceptownych przez pulę połączeń</li>
+<li>listen queue - liczba żądań oczekujących na przetworzenie w kolejce</li>
+<li>max listen queue - maksymalna wielkość kolejki</li>
+<li>listen queue len - rozmiar kolejki socketu do którego jesteśmy podłączeni</li>
+<li>idle processes - liczba workerów, które są gotowe do przyjęcia żąania</li>
+<li>active processes - liczba aktywnych procesów/workerów, czyli tych które wykonują żądania.</li>
+<li>total processes - całkowita liczba uruchomionych workerów(idle + active)</li>
+<li>max active processes - maksymalna liczba workerów jakie kiedykolwiek były uruchomione</li>
+<li>max children reached - Liczba ta jest zwiększana za każdym razem gdy php-fpm chce uruchomić nowy worker, a ma otwartą maksymalną ilość workerów.</li>
+</ul>
+<h5 id=na-co-zwracać-uwagę>Na co zwracać uwagę?</h5>
+<p>Zależnie od tego jakiego managera procesów używamy inaczej wygląda monitoring aplikacji.
+Ja zazwyczaj używam dynamicznego managera procesów i Tobie zalecam to samo.
+Gdy dynamicznie uruchamiamy nowe workery najważniejszą wartością jest <code>max children reached</code>.
+Wartość ta powinna być równa 0. Jeśli jest większa niż 0 oznacza, że mamy za mało workerów i
+powinniśmy zwiększyć ich ilość. Często przyczyną tego, że liczba jest > 0 jest to, że aplikacja
+działa zbyt wolno. Mamy za dużo zapytań do bazy danych, oczekujemy na wyniki z zewnętrznego API,
+mamy ciężkie obliczenia generowanie PDF&rsquo;ów itp&mldr;</p>
+<p>Podczas zwiększania maksymalnej ilości procesów przydaje się wartość <code>max active processes</code>.</p>
+<h2 id=linki>Linki</h2>
+<p>Wstep do PHP-FPM, Wstęp do Nginxa
+<a href=http://nginx.org/en/docs/http/ngx_http_log_module.html#log_format>Documentacji Nginxa</a>
+<a href=http://nginx.org/en/docs/http/ngx_http_log_module.html#access_log>dokumentacji</a>
+<a href=http://nginx.org/libxslt/en/docs/http/ngx_http_stub_status_module.html>oficjalnej dokumentacji</a></p>
+</div>
+</article>
+</main>
+<div class="authorbox clearfix">
+<figure class=authorbox__avatar>
+<img alt="John Doe avatar" src=/img/avatar.png class=avatar height=90 width=90>
+</figure>
+<div class=authorbox__header>
+<span class=authorbox__name>About John Doe</span>
+</div>
+<div class=authorbox__description>
+John Doe&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+</div>
+</div>
+<nav class="pager flex">
+<div class="pager__item pager__item--next">
+<a class=pager__link href=/posts/what-are-exceptions/ rel=next>
+<span class=pager__subtitle>Next&#8201;»</span>
+<p class=pager__title>[PL] What are exceptions</p>
+</a>
+</div>
+</nav>
+<section class=comments>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//Disqus.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</section>
+</div>
+</div>
+<footer class=footer>
+<div class="container footer__container flex">
+<div class=footer__copyright>
+&copy; 2021 John Doe.
+<span class=footer__copyright-credits>Generated with <a href=https://gohugo.io/ rel="nofollow noopener" target=_blank>Hugo</a> and <a href=https://github.com/Vimux/Mainroad/ rel="nofollow noopener" target=_blank>Mainroad</a> theme.</span>
+</div>
+</div>
+</footer>
+</div>
+<script async defer src=/js/menu.js></script>
+<script src=/js/custom.js></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script>
+</body>
+</html>

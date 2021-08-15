@@ -1,0 +1,191 @@
+<!doctype html><html class=no-js lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<title>Generate URL for Cloudwatch metrics from your code - Mainroad</title>
+<script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script>
+<meta name=description content>
+<meta property="og:title" content="Generate URL for Cloudwatch metrics from your code">
+<meta property="og:description" content="Get direct URL for AWS Cloudwatch metrics Introduction to the problem Last time, when I developed some integration with AWS, I got in trouble when I wanted to generate a direct URL to the Cloudwatch metrics. I could not find any working solution, so I decided to write my implementation.
+I expect to get a URL to AWS Cloudwatch metrics for given metrics data.
+What data do I have?
+ Statistic, Dimensions, MetricName, Namespace, Period  You can find source code for the helper I implemented on my GitHub: AwsMetricUrlHelper.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="/posts/aws-url-helper/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2019-11-28T12:00:00+02:00">
+<meta property="article:modified_time" content="2019-11-28T12:00:00+02:00">
+<meta itemprop=name content="Generate URL for Cloudwatch metrics from your code">
+<meta itemprop=description content="Get direct URL for AWS Cloudwatch metrics Introduction to the problem Last time, when I developed some integration with AWS, I got in trouble when I wanted to generate a direct URL to the Cloudwatch metrics. I could not find any working solution, so I decided to write my implementation.
+I expect to get a URL to AWS Cloudwatch metrics for given metrics data.
+What data do I have?
+ Statistic, Dimensions, MetricName, Namespace, Period  You can find source code for the helper I implemented on my GitHub: AwsMetricUrlHelper."><meta itemprop=datePublished content="2019-11-28T12:00:00+02:00">
+<meta itemprop=dateModified content="2019-11-28T12:00:00+02:00">
+<meta itemprop=wordCount content="178">
+<meta itemprop=keywords content>
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="Generate URL for Cloudwatch metrics from your code">
+<meta name=twitter:description content="Get direct URL for AWS Cloudwatch metrics Introduction to the problem Last time, when I developed some integration with AWS, I got in trouble when I wanted to generate a direct URL to the Cloudwatch metrics. I could not find any working solution, so I decided to write my implementation.
+I expect to get a URL to AWS Cloudwatch metrics for given metrics data.
+What data do I have?
+ Statistic, Dimensions, MetricName, Namespace, Period  You can find source code for the helper I implemented on my GitHub: AwsMetricUrlHelper.">
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<link rel=dns-prefetch href=//fonts.googleapis.com>
+<link rel=dns-prefetch href=//fonts.gstatic.com>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+<link rel=stylesheet href=/css/style.css>
+<link rel=stylesheet href=/css/custom.css>
+<link rel="shortcut icon" href=/favicon.ico>
+</head>
+<body class=body>
+<div class="container container--outer">
+<header class=header>
+<div class="container header__container">
+<div class="logo logo--mixed">
+<a class=logo__link href=/ title=Mainroad rel=home>
+<div class="logo__item logo__imagebox">
+<img class=logo__img src=/img/placeholder.png>
+</div><div class="logo__item logo__text">
+<div class=logo__title>Mainroad</div>
+<div class=logo__tagline>Just another site</div>
+</div>
+</a>
+</div>
+<div class=divider></div>
+</div>
+</header>
+<div class="wrapper flex">
+<div class=primary>
+<main class=main role=main>
+<article class=post>
+<header class=post__header>
+<h1 class=post__title>Generate URL for Cloudwatch metrics from your code</h1>
+<div class="post__meta meta"><div class="meta__item-author meta__item">
+<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>John Doe</span>
+</div>
+<div class="meta__item-datetime meta__item">
+<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2019-11-28T12:00:00+02:00>2019-11-28</time></div></div>
+</header>
+<div class="post__toc toc">
+<div class=toc__title>Page content</div>
+<div class=toc__menu>
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#introduction-to-the-problem>Introduction to the problem</a></li>
+<li><a href=#example-of-usage>Example of usage:</a></li>
+<li><a href=#output>Output</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div><div class="content post__content clearfix">
+<h1 id=get-direct-url-for-aws-cloudwatch-metrics>Get direct URL for AWS Cloudwatch metrics</h1>
+<h3 id=introduction-to-the-problem>Introduction to the problem</h3>
+<p>Last time, when I developed some integration with AWS, I got in trouble when I wanted to generate a direct URL to the Cloudwatch metrics. I could not find any working solution, so I decided to write my implementation.</p>
+<p>I expect to get a URL to AWS Cloudwatch metrics for given metrics data.</p>
+<p>What data do I have?</p>
+<ul>
+<li>Statistic,</li>
+<li>Dimensions,</li>
+<li>MetricName,</li>
+<li>Namespace,</li>
+<li>Period</li>
+</ul>
+<p>You can find source code for the helper I implemented on my GitHub: <a href=https://github.com/daniel1302/aws_helpers/blob/master/AwsMetricUrlHelper.py>AwsMetricUrlHelper.py</a></p>
+<h3 id=example-of-usage>Example of usage:</h3>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-python data-lang=python>metric_data <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;&#34;&#34;
+</span><span style=color:#e6db74>[
+</span><span style=color:#e6db74>    {
+</span><span style=color:#e6db74>        &#34;MetricName&#34;: &#34;prod-application-front-http-response-status-5xx&#34;,
+</span><span style=color:#e6db74>        &#34;Namespace&#34;: &#34;LogMetrics&#34;,
+</span><span style=color:#e6db74>        &#34;StatisticType&#34;: &#34;Statistic&#34;,
+</span><span style=color:#e6db74>        &#34;Statistic&#34;: &#34;SUM&#34;,
+</span><span style=color:#e6db74>        &#34;Unit&#34;: null,
+</span><span style=color:#e6db74>        &#34;Dimensions&#34;: [],
+</span><span style=color:#e6db74>        &#34;Period&#34;: 300,
+</span><span style=color:#e6db74>        &#34;EvaluationPeriods&#34;: 1,
+</span><span style=color:#e6db74>        &#34;ComparisonOperator&#34;: &#34;GreaterThanOrEqualToThreshold&#34;,
+</span><span style=color:#e6db74>        &#34;Threshold&#34;: 1.0,
+</span><span style=color:#e6db74>        &#34;TreatMissingData&#34;: &#34;- TreatMissingData: missing&#34;,
+</span><span style=color:#e6db74>        &#34;EvaluateLowSampleCountPercentile&#34;: &#34;&#34;
+</span><span style=color:#e6db74>    }
+</span><span style=color:#e6db74>]
+</span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+
+metric_data2 <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;&#34;&#34;
+</span><span style=color:#e6db74>[
+</span><span style=color:#e6db74>    {
+</span><span style=color:#e6db74>        &#34;MetricName&#34;: &#34;RequestCount&#34;,
+</span><span style=color:#e6db74>        &#34;Namespace&#34;: &#34;AWS/ApplicationELB&#34;,
+</span><span style=color:#e6db74>        &#34;StatisticType&#34;: &#34;Statistic&#34;,
+</span><span style=color:#e6db74>        &#34;Statistic&#34;: &#34;SUM&#34;,
+</span><span style=color:#e6db74>        &#34;Unit&#34;: null,
+</span><span style=color:#e6db74>        &#34;Dimensions&#34;: {
+</span><span style=color:#e6db74>            &#34;TargetGroup&#34;: &#34;targetgroup/prod-application-api-alb-tg/XXXXXX33c4073540&#34;,
+</span><span style=color:#e6db74>            &#34;LoadBalancer&#34;: &#34;app/prod-application-api-alb/XXXXXXb12cae3d294&#34;,
+</span><span style=color:#e6db74>            &#34;AvailabilityZone&#34;: &#34;us-east-1a&#34;
+</span><span style=color:#e6db74>        },
+</span><span style=color:#e6db74>        &#34;Period&#34;: 300,
+</span><span style=color:#e6db74>        &#34;EvaluationPeriods&#34;: 1,
+</span><span style=color:#e6db74>        &#34;ComparisonOperator&#34;: &#34;GreaterThanOrEqualToThreshold&#34;,
+</span><span style=color:#e6db74>        &#34;Threshold&#34;: 1.0,
+</span><span style=color:#e6db74>        &#34;TreatMissingData&#34;: &#34;- TreatMissingData: missing&#34;,
+</span><span style=color:#e6db74>        &#34;EvaluateLowSampleCountPercentile&#34;: &#34;&#34;
+</span><span style=color:#e6db74>    }
+</span><span style=color:#e6db74>]
+</span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+
+url_helper <span style=color:#f92672>=</span> AwsMetricUrlHelper(<span style=color:#e6db74>&#39;us-east-1&#39;</span>)
+print(url_helper<span style=color:#f92672>.</span>url(json<span style=color:#f92672>.</span>loads(metric_data), <span style=color:#ae81ff>60</span>, <span style=color:#ae81ff>6</span>))
+print(url_helper<span style=color:#f92672>.</span>url(json<span style=color:#f92672>.</span>loads(metric_data2), <span style=color:#ae81ff>60</span>, <span style=color:#ae81ff>6</span>))
+</code></pre></div><h3 id=output>Output</h3>
+<pre><code>https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#metricsV2:graph=~(view~'timeSeries~period~60~stacked~false~region~'us-east-1~start~'2019-11-28T11*3A01*3A47~end~'2019-11-28T17*3A01*3A47~metrics~(~(~'LogMetrics~'prod-application-front-http-response-status-5xx~(stat~'Sum))))
+https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#metricsV2:graph=~(view~'timeSeries~period~60~stacked~false~region~'us-east-1~start~'2019-11-28T11*3A01*3A47~end~'2019-11-28T17*3A01*3A47~metrics~(~(~'AWS/ApplicationELB~'RequestCount~'TargetGroup~'targetgroup/prod-application-api-alb-tg/XXXXXX33c4073540~'LoadBalancer~'app/prod-application-api-alb/XXXXXXb12cae3d294~'AvailabilityZone~'us-east-1a~(stat~'Sum))))
+</code></pre>
+</div>
+</article>
+</main>
+<div class="authorbox clearfix">
+<figure class=authorbox__avatar>
+<img alt="John Doe avatar" src=/img/avatar.png class=avatar height=90 width=90>
+</figure>
+<div class=authorbox__header>
+<span class=authorbox__name>About John Doe</span>
+</div>
+<div class=authorbox__description>
+John Doe&rsquo;s true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it.
+</div>
+</div>
+<nav class="pager flex">
+<div class="pager__item pager__item--prev">
+<a class=pager__link href=/posts/setup-kvm-on-a-physical-server/ rel=prev>
+<span class=pager__subtitle>«&#8201;Previous</span>
+<p class=pager__title>Setup KVM on a physical server</p>
+</a>
+</div>
+</nav>
+<section class=comments>
+<div id=disqus_thread></div>
+<script type=application/javascript>var disqus_config=function(){};(function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById('disqus_thread').innerHTML='Disqus comments not available by default when the website is previewed locally.';return}var b=document,a=b.createElement('script');a.async=!0,a.src='//Disqus.disqus.com/embed.js',a.setAttribute('data-timestamp',+new Date),(b.head||b.body).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+<a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a>
+</section>
+</div>
+</div>
+<footer class=footer>
+<div class="container footer__container flex">
+<div class=footer__copyright>
+&copy; 2021 John Doe.
+<span class=footer__copyright-credits>Generated with <a href=https://gohugo.io/ rel="nofollow noopener" target=_blank>Hugo</a> and <a href=https://github.com/Vimux/Mainroad/ rel="nofollow noopener" target=_blank>Mainroad</a> theme.</span>
+</div>
+</div>
+</footer>
+</div>
+<script async defer src=/js/menu.js></script>
+<script src=/js/custom.js></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script>
+</body>
+</html>
