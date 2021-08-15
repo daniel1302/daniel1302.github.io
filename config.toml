@@ -1,5 +1,5 @@
 baseURL = "/"
-title = "Mainroad"
+title = "blog.vallheru.pl"
 languageCode = "en-us"
 paginate = "10" # Number of posts per page
 theme = "mainroad"
@@ -7,8 +7,8 @@ disqusShortname = "Disqus" # Enable Disqus comments by entering your Disqus shor
 googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 
 [Author] # Used in authorbox
-  name = "John Doe"
-  bio = "John Doe's true identity is unknown. Maybe he is a successful blogger or writer. Nobody knows it."
+  name = "daniel1302"
+  bio = "Devops with AWS and golang"
   avatar = "img/avatar.png"
 
 [Params]
@@ -43,8 +43,8 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 
 [Params.logo]
   image = "img/placeholder.png" # Logo image. Path relative to "static"
-  title = "Mainroad" # Logo title, otherwise will use site title
-  subtitle = "Just another site" # Logo subtitle
+  title = "blog.vallheru.pl" # Logo title, otherwise will use site title
+  subtitle = "Personal blog"
 
 [Params.sidebar]
   home = "right" # Configure layout for home page

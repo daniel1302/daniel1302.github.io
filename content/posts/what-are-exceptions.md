@@ -172,7 +172,7 @@ Jednak nie mamy informacji w której lini wystąpił błąd, w przypadku gdybyś
 Aby zapewnić taką funkcjonalność możem skorzystać z wyjątków, zatem napiszmy prosty program:
 
 
-```
+```php
 Class Calculator
 {
     public function div(float $a, float $b): float

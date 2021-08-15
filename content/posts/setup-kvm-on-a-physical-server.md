@@ -9,7 +9,9 @@ draft: false
 
 As part of my learning, I will try to explain to you how to install KVM on physical computer and server. That is the first stop on the road to install the OpenStack.
 
-### Assumptions:
+## Introduction
+
+### Assumptions
 
   - Do not use GUI*
   - KVM cluster
@@ -21,13 +23,13 @@ As part of my learning, I will try to explain to you how to install KVM on physi
 
   \* Usually, I work with servers I have no real access. Also, my connection to the internet is slow, so it is not possible to transfer the graphic interface.
 
-### Triggered topics:
+### Triggered topics
 
   - Ansible
   - Linux networking
   - libvirt
 
-### Machine I run cluster on:
+### Machine I run cluster on
 
   - CPU: 2x Intel(R) Xeon(R) CPU E5645 @ 2.40GHz
   - RAM: 128 GB
@@ -53,7 +55,7 @@ Examples:
 - Host names: `smaug-mysql`,
 
 
-# KVM instalation
+## KVM instalation
   
   1. Before you start installing the KVM soft, check if your processor has support for virtualization. To check your virtualization capabilities, you need to run the following command: `egrep -c '(svm|vmx)' /proc/cpuinfo`
 
@@ -92,7 +94,7 @@ Examples:
 8. It's done!
 
 
-# KVM configuration
+## KVM configuration
 
 ### Infrastructure, you need to modify.
 
@@ -115,7 +117,7 @@ Examples:
 
 <br>
 
-## Qemu config
+### Qemu config
 Open the file: /etc/libvirt/qemu.conf and change the following values:
 
 ```
@@ -135,7 +137,7 @@ Then restart the `libvirtd` service
 
 <br>
 
-## Host bridge network
+### Host bridge network
 I use `Ubuntu Server 18.04.3 LTS`, and I am going to prepare creating bridge network for this system.
 
 #### Enable forwarding.
@@ -275,7 +277,7 @@ And you should be able to see a KVM NAT interface, with some DHCP IP:
 
 <br>
 
-## Create storage
+### Create storage
 
 #### What are KVM pools?
 
@@ -349,7 +351,7 @@ Now we can verify if everything is correct. If not, you can run the `virsh pool-
 
 <br>
 
-## Deploy first VM
+### Deploy first VM
 
 On the beginning, I will provide the bash command and explain a bit what it does. To create a new VM, I am going to use the virt-install bash command, which comes from virt tools.
 
@@ -484,7 +486,7 @@ ssh kvm@192.168.122.100
 
 <br>
 
-## Attach network
+### Attach network
 
 On the beginning, let's list all our networks on the KVM node. Execute the following command:  `virsh net-list`.
 
@@ -694,7 +696,7 @@ File content:
 
 <br>
 
-## Expand HDD
+### Expand HDD
 
 #### Quick about the volume format:
 Different people prefer to use a different type of volumes.
@@ -705,7 +707,7 @@ The *qcow* format provides several like features: snapshots, compressions, backu
 
 At the moment, it's not important what kind of format you choose.
 
-### Scenario 1: Attach new disk and map to specific location (/var/lib/mysql)
+#### Scenario 1: Attach new disk and map to specific location (/var/lib/mysql)
 
 Like You remember We use the "kvm-pool" pool as a volumes storage.
 
@@ -873,7 +875,7 @@ Like You remember We use the "kvm-pool" pool as a volumes storage.
     /dev/vdb1    /var/lib/mysql    ext4    defaults    0  0
     ```
 
-### Scenario 2: Expand the attached volume
+#### Scenario 2: Expand the attached volume
 
 1. Before We start let's check current file system size for particular guest
 
